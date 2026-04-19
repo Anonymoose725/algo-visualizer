@@ -28,7 +28,7 @@ server = bubbleHandler :<|> mergeHandler
     like IO but for HTTP error awareness
 -}
 
-bubbleHandler :: Maybe String -> Handler [Step]
+bubbleHandler :: Maybe String -> Hansdler [Step]
 bubbleHandler Nothing = throwError err400 -- bad
 bubbleHandler (Just inputStr) =
   let nums = parseInts inputStr

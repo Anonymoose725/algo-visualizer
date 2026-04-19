@@ -10,7 +10,7 @@ build-type:         Simple
 extra-doc-files:    CHANGELOG.md
 
 common warnings
-    ghc-options: -Wall
+    ghc-options: -Wall -threaded
 
 executable algo-visualizer
     import:           warnings
@@ -34,3 +34,4 @@ executable algo-visualizer
         OverloadedStrings
         DerivingStrategies
         DeriveAnyClass
+        DataKinds

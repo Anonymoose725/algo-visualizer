@@ -12,5 +12,14 @@ data Step = Step
     currentState :: [Int],
     comparing :: (Int, Int)
   }
-  deriving stock (Show, Generic)
+  deriving stock (Generic)
   deriving anyclass (ToJSON)
+
+instance Show Step where -- custom Show typeclass instance
+  show s =
+    "Step "
+      ++ show (stepNumber s)
+      ++ " | comparing "
+      ++ show (comparing s)
+      ++ " | state: "
+      ++ show (currentState s)

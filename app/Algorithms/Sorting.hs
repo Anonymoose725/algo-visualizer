@@ -17,3 +17,14 @@ pass list@(x1 : x2 : xs) n acc =
   where
     finalState = reverse acc ++ list
     step = Step {stepNumber = n, currentState = finalState, comparing = (x1, x2)}
+
+bubbleSort :: [Int] -> [Step]
+bubbleSort [] = [] -- no work to be done
+bubbleSort list = go list 1
+  where
+    go :: [Int] -> Int -> [Step] -- helper
+    go l n =
+      let (steps, l') = pass l n []
+       in if l == l'
+            then steps
+            else steps ++ go l' (n + length steps)

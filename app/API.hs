@@ -5,6 +5,7 @@ module API where
 
 import Algorithms.Sorting (bubbleSort, mergeSort)
 import Data.Aeson (ToJSON)
+import Data.Char (isSpace)
 import Network.Wai (Application)
 import Servant
 import Types (Step (..))
@@ -41,7 +42,10 @@ mergeHandler (Just inputStr) =
    in return (fst (mergeSort nums 1))
 
 parseInts :: String -> [Int]
-parseInts s = map read (splitOn ',' s)
+parseInts s = map (read . trim) (splitOn ',' s)
+
+trim :: String -> String
+trim = reverse . dropWhile isSpace . reverse . dropWhile isSpace -- trim leading, trailing spaces
 
 splitOn :: Char -> String -> [String]
 splitOn _ "" = []

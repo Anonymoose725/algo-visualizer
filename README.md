@@ -1,8 +1,8 @@
-# algorithm-visualizer
+# algo-visualizer
 
 My Haskell backend that generates step-by-step execution traces of sorting algorithms, served as JSON over HTTP.
 
-Built as the backend for [algo-visualizer-frontend](https://algo-visualizer-frontend-six.vercel.app) — a full-stack algorithm visualizer. (See the [repository](https://github.com/Anonymoose725/algo-visualizer-frontend))
+Built as the backend for [algo-visualizer-frontend](https://algo-visualizer-frontend-six.vercel.app): a full-stack algorithm visualizer. (See the [repository](https://github.com/Anonymoose725/algo-visualizer-frontend))
 
 ---
 

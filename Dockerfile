@@ -7,9 +7,8 @@ RUN cabal update && cabal build --only-dependencies
 
 COPY . .
 RUN cabal build
-
-RUN cp $(cabal list-bin algo-visualizer) app/algo-visualizer-exe
+RUN cabal install --install-method=copy --installdir=/app/bin
 
 EXPOSE 8080
 
-CMD ["/app/algo-visualizer-exe"]
+CMD ["/app/bin/algo-visualizer"]

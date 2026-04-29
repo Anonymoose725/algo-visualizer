@@ -6,7 +6,7 @@ Built as the backend for [algo-visualizer-frontend](https://algo-visualizer-fron
 
 ---
 
-## What it does
+## What It Does
 
 Each endpoint returns intermediate steps in an algorithm - typically elements are compared, and related data at that moment is returned. This generally includes indices, a full array state at that moment, etc. The frontend uses these trace datapoints to animate the algorithm step-by-step.
 

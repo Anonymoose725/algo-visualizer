@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveFoldable #-}
 -- enables explicitly with a language pragma
 {-# LANGUAGE DerivingStrategies #-}
 
@@ -23,3 +24,9 @@ instance Show Step where -- custom Show typeclass instance
       ++ show (comparing s)
       ++ " | state: "
       ++ show (currentState s)
+
+data BTree a = Empty | Node a (BTree a) (BTree a) deriving (Foldable) -- leaf | node x l r
+
+instance (Show a) => Show (BTree a) where
+  show Empty = "nil"
+  show (Node x l r) = "Node " ++ show x ++ " (" ++ show l ++ ") (" ++ show r ++ ")"

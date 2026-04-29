@@ -18,10 +18,10 @@ pass list@(x1 : x2 : xs) n acc =
        in (step : restSteps, restList)
   where
     finalState = reverse acc ++ list
-    step = Step {stepNumber = n, currentState = finalState, comparing = (x1, x2)}
+    step = Step {stepNumber = n, currentState = finalState, comparing = (x1, x2), comparingIndices = (length acc, length acc + 1)}
 
 bubbleSort :: [Int] -> [Step]
-bubbleSort [] = [] -- no work to be done
+bubbleSort [] = [] -- no work to be done:
 bubbleSort list = go list 1
   where
     go :: [Int] -> Int -> [Step] -- helper
@@ -48,7 +48,7 @@ merge [] ys _ = ([], ys)
 merge xs [] _ = ([], xs)
 merge (x : xs) (y : ys) n =
   let state = (x : xs) ++ (y : ys)
-      step = Step {stepNumber = n, currentState = state, comparing = (x, y)}
+      step = Step {stepNumber = n, currentState = state, comparing = (x, y), comparingIndices = (0, 1)} -- 0, 1 placeholder
    in if x < y
         then
           let (restSteps, restList) = merge xs (y : ys) (n + 1)

@@ -11,7 +11,8 @@ import GHC.Generics (Generic)
 data Step = Step
   { stepNumber :: Int,
     currentState :: [Int],
-    comparing :: (Int, Int)
+    comparing :: (Int, Int),
+    comparingIndices :: (Int, Int)
   }
   deriving stock (Generic)
   deriving anyclass (ToJSON)

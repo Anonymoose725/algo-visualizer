@@ -150,7 +150,6 @@ The compiler makes sure that every handler matches this definition. A handler re
 2. More algorithms!
     - quicksort (with pivot highlighting)
     - heap sort (tree + array dual view)
-    - ~~ insertion sort (visually obvious!)~~
     - binary search trees
     - redblack trees + rotations
     - dijkstra's shortest path + graphs
@@ -160,3 +159,7 @@ The compiler makes sure that every handler matches this definition. A handler re
 4. Data.Vector upgrade, only if performance requires it
 
 5. Export/import prebuilt data structures
+
+Completed:
+
+~~ insertion sort (visually obvious!)~~

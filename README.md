@@ -150,7 +150,7 @@ The compiler makes sure that every handler matches this definition. A handler re
 2. More algorithms!
     - quicksort (with pivot highlighting)
     - heap sort (tree + array dual view)
-    - insertion sort (visually obvious!)
+    ~~- insertion sort (visually obvious!)~~
     - binary search trees
     - redblack trees + rotations
     - dijkstra's shortest path + graphs

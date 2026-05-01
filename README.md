@@ -159,5 +159,3 @@ The compiler makes sure that every handler matches this definition. A handler re
 4. Data.Vector upgrade, only if performance requires it
 
 5. Export/import prebuilt data structures
-
-Completed:

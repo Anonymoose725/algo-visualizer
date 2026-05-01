@@ -124,3 +124,39 @@ type AlgoAPI
 The compiler makes sure that every handler matches this definition. A handler returning the wrong type will not compile.
 
 **Step indices** — `comparingIndices` stores the actual array positions of compared elements rather than their values. This avoids ambiguity when duplicate values appear in the input. Less restriction on input provides a more robust system.
+
+---
+
+## Roadmap / Changes
+
+**Improvements**
+
+1. Add Action datatype to Step so algorithms do not need to infer the type of action at each comparison
+    ```haskell
+    data Action
+        = Compare (Int, Int)
+        | Swap Int Int
+        | Write Int Int
+    ```
+    So Step becomes
+    ```haskell
+    data Step = Step
+     { stepNumber :: Int,
+       currentState :: [Int],
+       action :: Action,
+       partitionInfo :: Maybe PartitionInfo
+     }
+    ```
+2. More algorithms!
+    - quicksort (with pivot highlighting)
+    - heap sort (tree + array dual view)
+    - insertion sort (visually obvious!)
+    - binary search trees
+    - redblack trees + rotations
+    - dijkstra's shortest path + graphs
+
+3. Graph building from adjcency list, received from frontend (user builds! from drag-and-drop)
+
+4. Data.Vector upgrade, only if performance requires it
+
+5. Export/import prebuilt data structures

@@ -82,7 +82,7 @@ merge full (x : xs) (y : ys) lo mid hi acc n leftTaken rightTaken =
                 merge full xs (y : ys) lo mid hi newAcc (n + 1) (leftTaken + 1) rightTaken
            in (step : restSteps, restList)
         else
-          let newAcc = y : acc
+          let newAcc = y : acc -- y merged
               mergedSoFar = reverse newAcc
               remaining = (x : xs) ++ ys
               mergedSlice = mergedSoFar ++ remaining

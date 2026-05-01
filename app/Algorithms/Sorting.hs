@@ -1,6 +1,6 @@
 module Algorithms.Sorting where
 
-import Types (Step (..)) -- for now
+import Types -- for now
 
 {- bubblesort -}
 
@@ -18,7 +18,14 @@ pass list@(x1 : x2 : xs) n acc =
        in (step : restSteps, restList)
   where
     finalState = reverse acc ++ list
-    step = Step {stepNumber = n, currentState = finalState, comparing = (x1, x2), comparingIndices = (length acc, length acc + 1)}
+    step =
+      Step
+        { stepNumber = n,
+          currentState = finalState,
+          comparing = (x1, x2),
+          comparingIndices = (length acc, length acc + 1),
+          partitionInfo = Nothing
+        }
 
 bubbleSort :: [Int] -> [Step]
 bubbleSort [] = [] -- no work to be done:
@@ -32,27 +39,65 @@ bubbleSort list = go list 1
             else steps ++ go l' (n + length steps)
 
 {- mergesort -}
+--           full     lo     hi     n
+mergeSort :: [Int] -> Int -> Int -> Int -> ([Step], [Int])
+mergeSort full lo hi n
+  | lo >= hi = ([], full) -- full coverage
+  | otherwise =
+      let mid = lo + (hi - lo) `div` 2
+          (leftSteps, fullAfterL) = mergeSort full lo mid n
+          (rightSteps, fullAfterR) = mergeSort fullAfterL (mid + 1) hi (n + length leftSteps)
+          leftSorted = take (mid - lo + 1) (drop lo fullAfterL) -- left side
+          rightSorted = take (hi - mid) (drop (mid + 1) fullAfterR) -- right side
+          (mergeSteps, mergedPortion) = merge fullAfterL leftSorted rightSorted lo mid hi [] (n + length leftSteps + length rightSteps) 0 0
+          fullAfterMerging = (take lo fullAfterL) ++ mergedPortion ++ (drop (hi + 1) fullAfterR)
+       in (leftSteps ++ rightSteps ++ mergeSteps, fullAfterMerging)
 
-mergeSort :: [Int] -> Int -> ([Step], [Int])
-mergeSort [] _ = ([], [])
-mergeSort [x] _ = ([], [x])
-mergeSort xs n =
-  let (left, right) = splitAt (length xs `div` 2) xs
-      (leftSteps, leftSorted) = mergeSort left n
-      (rightSteps, rightSorted) = mergeSort right (n + length leftSteps)
-      (mergeSteps, merged) = merge leftSorted rightSorted (n + length leftSteps + length rightSteps)
-   in (leftSteps ++ rightSteps ++ mergeSteps, merged)
-
-merge :: [Int] -> [Int] -> Int -> ([Step], [Int])
-merge [] ys _ = ([], ys)
-merge xs [] _ = ([], xs)
-merge (x : xs) (y : ys) n =
-  let state = (x : xs) ++ (y : ys)
-      step = Step {stepNumber = n, currentState = state, comparing = (x, y), comparingIndices = (0, 1)} -- 0, 1 placeholder
-   in if x < y
+--       full     left     right    lo     mid    hi     acc      n     Ltaken  Rtaken
+merge :: [Int] -> [Int] -> [Int] -> Int -> Int -> Int -> [Int] -> Int -> Int -> Int -> ([Step], [Int])
+merge _ [] ys _ _ _ acc _ _ _ = ([], reverse acc ++ ys) -- left branch exhausted
+merge _ xs [] _ _ _ acc _ _ _ = ([], reverse acc ++ xs) -- right branch exhausted
+merge full (x : xs) (y : ys) lo mid hi acc n leftTaken rightTaken =
+  let indexOfX = lo + leftTaken
+      indexOfY = mid + 1 + rightTaken
+   in if x <= y
         then
-          let (restSteps, restList) = merge xs (y : ys) (n + 1)
-           in (step : restSteps, x : restList)
+          let newAcc = x : acc -- x merged
+              mergedSoFar = reverse newAcc -- reverse more efficient than acc ++ [x]
+              remaining = xs ++ (y : ys)
+              mergedSlice = mergedSoFar ++ remaining
+
+              rightNow = take lo full ++ mergedSlice ++ drop (hi + 1) full
+
+              step =
+                Step
+                  { stepNumber = n,
+                    currentState = rightNow,
+                    comparing = (x, y),
+                    comparingIndices = (indexOfX, indexOfY),
+                    partitionInfo = Just (PartitionInfo (lo, mid) (mid + 1, hi))
+                  }
+
+              (restSteps, restList) =
+                merge full xs (y : ys) lo mid hi newAcc (n + 1) (leftTaken + 1) rightTaken
+           in (step : restSteps, restList)
         else
-          let (restSteps, restList) = merge (x : xs) ys (n + 1)
-           in (step : restSteps, y : restList)
+          let newAcc = y : acc
+              mergedSoFar = reverse newAcc
+              remaining = (x : xs) ++ ys
+              mergedSlice = mergedSoFar ++ remaining
+
+              rightNow = take lo full ++ mergedSlice ++ drop (hi + 1) full
+
+              step =
+                Step
+                  { stepNumber = n,
+                    currentState = rightNow,
+                    comparing = (x, y),
+                    comparingIndices = (indexOfX, indexOfY),
+                    partitionInfo = Just (PartitionInfo (lo, mid) (mid + 1, hi))
+                  }
+
+              (restSteps, restList) =
+                merge full (x : xs) ys lo mid hi newAcc (n + 1) leftTaken (rightTaken + 1)
+           in (step : restSteps, restList)

@@ -1,5 +1,6 @@
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveFoldable #-}
--- enables explicitly with a language pragma
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DerivingStrategies #-}
 
 module Types where
@@ -12,7 +13,8 @@ data Step = Step
   { stepNumber :: Int,
     currentState :: [Int],
     comparing :: (Int, Int),
-    comparingIndices :: (Int, Int)
+    comparingIndices :: (Int, Int),
+    partitionInfo :: Maybe PartitionInfo
   }
   deriving stock (Generic)
   deriving anyclass (ToJSON)
@@ -25,6 +27,16 @@ instance Show Step where -- custom Show typeclass instance
       ++ show (comparing s)
       ++ " | state: "
       ++ show (currentState s)
+      ++ " | partitions: "
+      ++ show (partitionInfo s)
+
+data PartitionInfo = PartitionInfo
+  { leftRange :: (Int, Int),
+    rightRange :: (Int, Int)
+  }
+  deriving stock (Generic)
+  deriving anyclass (ToJSON)
+  deriving (Show)
 
 data BTree a = Empty | Node a (BTree a) (BTree a) deriving (Foldable) -- leaf | node x l r
 

@@ -39,7 +39,7 @@ mergeHandler :: Maybe String -> Handler [Step]
 mergeHandler Nothing = throwError err400
 mergeHandler (Just inputStr) =
   let nums = parseInts inputStr
-   in return (fst (mergeSort nums 1))
+   in return (fst (mergeSort nums 0 (length nums - 1) 1))
 
 parseInts :: String -> [Int]
 parseInts s = map (read . trim) (splitOn ',' s)

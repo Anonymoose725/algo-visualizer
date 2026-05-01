@@ -3,7 +3,7 @@
 
 module API where
 
-import Algorithms.Sorting (bubbleSort, mergeSort)
+import Algorithms.Sorting (bubbleSort, insertionSort, mergeSort)
 import Data.Aeson (ToJSON)
 import Data.Char (isSpace)
 import Network.Wai (Application)
@@ -14,9 +14,10 @@ type AlgAPI -- API type
   =
   "sort" :> "bubble" :> QueryParam "input" String :> Get '[JSON] [Step]
     :<|> "sort" :> "merge" :> QueryParam "input" String :> Get '[JSON] [Step] -- :<|> is 'or'
+    :<|> "sort" :> "insertion" :> QueryParam "input" String :> Get '[JSON] [Step]
 
 server :: Server AlgAPI
-server = bubbleHandler :<|> mergeHandler
+server = bubbleHandler :<|> mergeHandler :<|> insertionHandler
 
 {- A note on handlers:
     - functional algorithms are pure, we want to keep it that way. same input => same output
@@ -40,6 +41,12 @@ mergeHandler Nothing = throwError err400
 mergeHandler (Just inputStr) =
   let nums = parseInts inputStr
    in return (fst (mergeSort nums 0 (length nums - 1) 1))
+
+insertionHandler :: Maybe String -> Handler [Step]
+insertionHandler Nothing = throwError err400
+insertionHandler (Just inputStr) =
+  let nums = parseInts inputStr
+   in return (fst (insertionSort nums 0))
 
 parseInts :: String -> [Int]
 parseInts s = map (read . trim) (splitOn ',' s)

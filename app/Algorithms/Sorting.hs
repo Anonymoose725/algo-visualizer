@@ -101,3 +101,42 @@ merge full (x : xs) (y : ys) lo mid hi acc n leftTaken rightTaken =
               (restSteps, restList) =
                 merge full (x : xs) ys lo mid hi newAcc (n + 1) leftTaken (rightTaken + 1)
            in (step : restSteps, restList)
+
+{- insertion sort -}
+
+insertionSort :: [Int] -> Int -> ([Step], [Int])
+insertionSort xs = go xs 1 -- reduce n on both sides
+  where
+    --      arr    i      n
+    go :: [Int] -> Int -> Int -> ([Step], [Int])
+    go arr i stepNum -- (not called n to avoid shadow)
+      | i >= length arr = ([], arr)
+      | otherwise =
+          let key = arr !! i
+              (insertionSteps, arrAfterInsertion, n') = insertLeft arr key i (i - 1) stepNum
+              (restSteps, finalArr) = go arrAfterInsertion (i + 1) n'
+           in (insertionSteps ++ restSteps, finalArr)
+
+    --             arr     key    i      j      n       steps   cur    stepNum
+    insertLeft :: [Int] -> Int -> Int -> Int -> Int -> ([Step], [Int], Int)
+    insertLeft arr key i j stepNum
+      | j < 0 = ([], arr, stepNum)
+      | otherwise =
+          let x = arr !! j
+              step =
+                Step
+                  { stepNumber = stepNum,
+                    currentState = arr,
+                    comparing = (x, key),
+                    comparingIndices = (j, i),
+                    partitionInfo = Nothing
+                  }
+           in if x > key
+                then
+                  let shiftSorted = swapPos i x $ swapPos j key arr -- swap
+                      (restSteps, finalArr, n') = insertLeft shiftSorted key j (j - 1) (stepNum + 1)
+                   in (step : restSteps, finalArr, n')
+                else ([step], arr, stepNum + 1)
+
+swapPos :: Int -> a -> [a] -> [a]
+swapPos indexOfX v xs = take indexOfX xs ++ [v] ++ drop (indexOfX + 1) xs

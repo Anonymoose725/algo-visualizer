@@ -161,5 +161,3 @@ The compiler makes sure that every handler matches this definition. A handler re
 5. Export/import prebuilt data structures
 
 Completed:
-
-~~ insertion sort (visually obvious!)~~

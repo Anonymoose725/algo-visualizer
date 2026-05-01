@@ -25,6 +25,8 @@ instance Show Step where -- custom Show typeclass instance
       ++ show (stepNumber s)
       ++ " | comparing "
       ++ show (comparing s)
+      ++ " at indices "
+      ++ show (comparingIndices s)
       ++ " | state: "
       ++ show (currentState s)
       ++ " | partitions: "

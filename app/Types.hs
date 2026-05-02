@@ -45,3 +45,33 @@ data BTree a = Empty | Node a (BTree a) (BTree a) deriving (Foldable) -- leaf | 
 instance (Show a) => Show (BTree a) where
   show Empty = "nil"
   show (Node x l r) = "Node " ++ show x ++ " (" ++ show l ++ ") (" ++ show r ++ ")"
+
+data GNode = GNode
+  { nodeID :: Int, -- need a way to calculatee efficiently and be unique: insertion order?
+    nodeValue :: Int
+  }
+  deriving stock (Show, Generic)
+  deriving anyclass (ToJSON)
+
+data GEdge = GEdge
+  { fromNode :: Int, -- note: reference by ID
+    toNode :: Int,
+    weight :: Maybe Int
+  }
+  deriving stock (Show, Generic)
+  deriving anyclass (ToJSON)
+
+data GraphStep = GraphStep
+  { highlightedNodes :: [Int],
+    highlightedEdges :: [(Int, Int)]
+  }
+  deriving stock (Show, Generic)
+  deriving anyclass (ToJSON)
+
+data GraphResponse = GraphResponse
+  { nodes :: [GNode],
+    edges :: [GEdge],
+    steps :: [GraphStep]
+  }
+  deriving stock (Show, Generic)
+  deriving anyclass (ToJSON)

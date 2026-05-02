@@ -22,6 +22,7 @@ executable algo-visualizer
         API
         Algorithms.Sorting
         Algorithms.Trees
+        Algorithms.BST
     build-depends:
         base ^>=4.18.3.0,
         servant,
@@ -30,7 +31,8 @@ executable algo-visualizer
         wai,
         wai-cors,
         aeson,
-        text
+        text,
+        containers
     default-extensions:
         DeriveGeneric
         OverloadedStrings

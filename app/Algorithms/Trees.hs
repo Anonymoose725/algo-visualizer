@@ -16,7 +16,7 @@ searchBST x (Node v l r)
   | otherwise = searchBST x r -- use guard matching instead of if/else to avoid lazy || or
 
 fromList :: (Ord a) => [a] -> BTree a
-fromList = foldr insertBST Empty -- insertions fold right
+fromList = foldl (flip insertBST) Empty -- insertions fold right
 
 height :: BTree a -> Int
 height Empty = 0

@@ -106,7 +106,8 @@ app/
 ├── Types.hs                — shared data types (Step, BTree, etc)
 └── Algorithms/
     ├── Sorting.hs          — bubble sort, merge sort, step trace generation
-    └── Trees.hs            — binary search tree (insert, search, traversal)
+    ├── Trees.hs            — implements related functions for Tree datatypes
+    └── BST.hs              - binary search tree algorithms (build, insert, search)
 ```
 
 ---
@@ -124,6 +125,8 @@ type AlgoAPI
 The compiler makes sure that every handler matches this definition. A handler returning the wrong type will not compile.
 
 **Step indices** — `comparingIndices` stores the actual array positions of compared elements rather than their values. This avoids ambiguity when duplicate values appear in the input. Less restriction on input provides a more robust system.
+
+**Graph Steps** - include auxillary information for graphs, and by extension trees. Having seperate step-types for different abstract datatypes gives room for JSON efficiency and only requesting necessary fields.
 
 ---
 
@@ -150,7 +153,7 @@ The compiler makes sure that every handler matches this definition. A handler re
 2. More algorithms!
     - quicksort (with pivot highlighting)
     - heap sort (tree + array dual view)
-    - binary search trees
+    - binary search trees (done!)
     - redblack trees + rotations
     - dijkstra's shortest path + graphs
 

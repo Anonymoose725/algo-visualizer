@@ -3,21 +3,32 @@
 
 module API where
 
+import Algorithms.BST (bstInsertSteps, bstSearchSteps, treeToGraph)
 import Algorithms.Sorting (bubbleSort, insertionSort, mergeSort)
+import Algorithms.Trees
 import Data.Aeson (ToJSON)
 import Data.Char (isSpace)
+import qualified Data.Map.Strict as Map
 import Network.Wai (Application)
 import Servant
-import Types (Step (..))
+import Types (GEdge (..), GNode (..), GraphResponse (..), GraphStep (..), Step (..))
 
-type AlgAPI -- API type
-  =
-  "sort" :> "bubble" :> QueryParam "input" String :> Get '[JSON] [Step]
-    :<|> "sort" :> "merge" :> QueryParam "input" String :> Get '[JSON] [Step] -- :<|> is 'or'
+type AlgAPI =
+  "sort" :> "bubble" :> QueryParam "input" String :> Get '[JSON] [Step] -- :<|> is or
+    :<|> "sort" :> "merge" :> QueryParam "input" String :> Get '[JSON] [Step]
     :<|> "sort" :> "insertion" :> QueryParam "input" String :> Get '[JSON] [Step]
+    :<|> "tree" :> "bst" :> QueryParam "input" String :> Get '[JSON] GraphResponse
+    :<|> "tree" :> "bst" :> "search" :> QueryParam "input" String :> QueryParam "target" String :> Get '[JSON] GraphResponse
+    :<|> "tree" :> "bst" :> "insert" :> QueryParam "input" String :> Get '[JSON] GraphResponse
 
 server :: Server AlgAPI
-server = bubbleHandler :<|> mergeHandler :<|> insertionHandler
+server =
+  bubbleHandler
+    :<|> mergeHandler
+    :<|> insertionHandler
+    :<|> bstHandler
+    :<|> bstSearchHandler
+    :<|> bstInsertHandler
 
 {- A note on handlers:
     - functional algorithms are pure, we want to keep it that way. same input => same output
@@ -47,6 +58,35 @@ insertionHandler Nothing = throwError err400
 insertionHandler (Just inputStr) =
   let nums = parseInts inputStr
    in return (fst (insertionSort nums 0))
+
+bstHandler :: Maybe String -> Handler GraphResponse
+bstHandler Nothing = throwError err400
+bstHandler (Just inputStr) =
+  let nums = parseInts inputStr
+      tree = fromList nums
+      idMap = Map.fromList (zip nums [0 ..])
+      (treeNodes, treeEdges) = treeToGraph tree idMap
+   in return $ GraphResponse {nodes = treeNodes, edges = treeEdges, steps = []}
+
+bstSearchHandler :: Maybe String -> Maybe String -> Handler GraphResponse
+bstSearchHandler Nothing _ = throwError err400
+bstSearchHandler _ Nothing = throwError err400
+bstSearchHandler (Just inputStr) (Just targetStr) =
+  let nums = parseInts inputStr
+      target = read targetStr :: Int
+      tree = fromList nums
+      idMap = Map.fromList (zip nums [0 ..])
+      (treeNodes, treeEdges) = treeToGraph tree idMap
+      searchSteps = bstSearchSteps tree target idMap
+   in return $ GraphResponse {nodes = treeNodes, edges = treeEdges, steps = searchSteps}
+
+bstInsertHandler :: Maybe String -> Handler GraphResponse
+bstInsertHandler Nothing = throwError err400
+bstInsertHandler (Just inputStr) =
+  let nums = parseInts inputStr
+      (insertSteps, tree, idMap) = bstInsertSteps nums
+      (treeNodes, treeEdges) = treeToGraph tree idMap
+   in return $ GraphResponse {nodes = treeNodes, edges = treeEdges, steps = insertSteps}
 
 parseInts :: String -> [Int]
 parseInts s = map (read . trim) (splitOn ',' s)

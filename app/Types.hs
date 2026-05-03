@@ -65,8 +65,15 @@ data GraphStep = GraphStep
   { highlightedNodes :: [Int],
     highlightedEdges :: [(Int, Int)]
   }
-  deriving stock (Show, Generic)
+  deriving stock (Generic)
   deriving anyclass (ToJSON)
+
+instance Show GraphStep where
+  show s =
+    "visiting nodes: "
+      ++ show (highlightedNodes s)
+      ++ " | edges: "
+      ++ show (highlightedEdges s)
 
 data GraphResponse = GraphResponse
   { nodes :: [GNode],

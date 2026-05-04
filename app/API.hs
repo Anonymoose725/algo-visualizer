@@ -8,6 +8,7 @@ import Algorithms.Sorting (bubbleSort, insertionSort, mergeSort)
 import Algorithms.Trees
 import Data.Aeson (ToJSON)
 import Data.Char (isSpace)
+import Data.List (nub)
 import qualified Data.Map.Strict as Map
 import Network.Wai (Application)
 import Servant
@@ -63,30 +64,42 @@ bstHandler :: Maybe String -> Handler GraphResponse
 bstHandler Nothing = throwError err400
 bstHandler (Just inputStr) =
   let nums = parseInts inputStr
-      tree = fromList nums
-      idMap = Map.fromList (zip nums [0 ..])
-      (treeNodes, treeEdges) = treeToGraph tree idMap
-   in return $ GraphResponse {nodes = treeNodes, edges = treeEdges, steps = []}
+      unique = nub nums
+   in if length unique /= length nums
+        then throwError err400
+        else
+          let tree = fromList unique
+              idMap = Map.fromList (zip unique [0 ..])
+              (treeNodes, treeEdges) = treeToGraph tree idMap
+           in return $ GraphResponse {nodes = treeNodes, edges = treeEdges, steps = []}
 
 bstSearchHandler :: Maybe String -> Maybe String -> Handler GraphResponse
 bstSearchHandler Nothing _ = throwError err400
 bstSearchHandler _ Nothing = throwError err400
 bstSearchHandler (Just inputStr) (Just targetStr) =
   let nums = parseInts inputStr
-      target = read targetStr :: Int
-      tree = fromList nums
-      idMap = Map.fromList (zip nums [0 ..])
-      (treeNodes, treeEdges) = treeToGraph tree idMap
-      searchSteps = bstSearchSteps tree target idMap
-   in return $ GraphResponse {nodes = treeNodes, edges = treeEdges, steps = searchSteps}
+      unique = nub nums
+   in if length unique /= length nums
+        then throwError err400
+        else
+          let target = read targetStr :: Int
+              tree = fromList unique
+              idMap = Map.fromList (zip unique [0 ..])
+              (treeNodes, treeEdges) = treeToGraph tree idMap
+              searchSteps = bstSearchSteps tree target idMap
+           in return $ GraphResponse {nodes = treeNodes, edges = treeEdges, steps = searchSteps}
 
 bstInsertHandler :: Maybe String -> Handler GraphResponse
 bstInsertHandler Nothing = throwError err400
 bstInsertHandler (Just inputStr) =
   let nums = parseInts inputStr
-      (insertSteps, tree, idMap) = bstInsertSteps nums
-      (treeNodes, treeEdges) = treeToGraph tree idMap
-   in return $ GraphResponse {nodes = treeNodes, edges = treeEdges, steps = insertSteps}
+      unique = nub nums -- remove duplicates
+   in if length unique /= length nums
+        then throwError err400 {errBody = "Duplicate values are not supported"}
+        else
+          let (insertSteps, tree, idM) = bstInsertSteps unique
+              (treeNodes, treeEdges) = treeToGraph tree idM
+           in return $ GraphResponse {nodes = treeNodes, edges = treeEdges, steps = insertSteps}
 
 parseInts :: String -> [Int]
 parseInts s = map (read . trim) (splitOn ',' s)

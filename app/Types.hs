@@ -62,8 +62,8 @@ data GEdge = GEdge
   deriving anyclass (ToJSON)
 
 data GraphStep = GraphStep
-  { highlightedNodes :: [Int],
-    highlightedEdges :: [(Int, Int)]
+  { highlightedNodes :: [String],
+    highlightedEdges :: [(String, String)]
   }
   deriving stock (Generic)
   deriving anyclass (ToJSON)

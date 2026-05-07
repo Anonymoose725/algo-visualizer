@@ -43,7 +43,7 @@ bstSearchSteps (Node x l r) k idMap =
     Just xid ->
       let step =
             GraphStep
-              { highlightedNodes = [xid],
+              { highlightedNodes = [show xid], -- convert int to string
                 highlightedEdges = []
               }
        in if k == x
@@ -66,7 +66,7 @@ bstInsertSteps vals = go vals Empty Map.empty 0
       let stepsInPath = findPath x t idMap
           t' = insertBST x t
           idMap' = Map.insert x nextID idMap
-          insertStep = GraphStep {highlightedNodes = [nextID], highlightedEdges = []}
+          insertStep = GraphStep {highlightedNodes = [show nextID], highlightedEdges = []}
           (restSteps, finalTree, idMapComplete) = go xs t' idMap' (nextID + 1) -- incremement id by insertion order
        in (stepsInPath ++ [insertStep] ++ restSteps, finalTree, idMapComplete)
 
@@ -76,7 +76,7 @@ findPath v (Node x l r) idMap =
   case Map.lookup x idMap of
     Nothing -> []
     Just xID ->
-      let step = GraphStep {highlightedNodes = [xID], highlightedEdges = []}
+      let step = GraphStep {highlightedNodes = [show xID], highlightedEdges = []}
        in if v <= x
             then step : findPath v l idMap
             else step : findPath v r idMap

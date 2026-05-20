@@ -48,7 +48,8 @@ instance (Show a) => Show (BTree a) where
 
 data GNode = GNode
   { nodeID :: Int, -- need a way to calculatee efficiently and be unique: insertion order?
-    nodeValue :: Int
+    nodeValue :: Int,
+    nodeLabel :: Maybe String
   }
   deriving stock (Show, Generic)
   deriving anyclass (ToJSON)
@@ -63,7 +64,8 @@ data GEdge = GEdge
 
 data GraphStep = GraphStep
   { highlightedNodes :: [String],
-    highlightedEdges :: [(String, String)]
+    highlightedEdges :: [(String, String)],
+    distances :: [(String, Maybe Int)]
   }
   deriving stock (Generic)
   deriving anyclass (ToJSON)

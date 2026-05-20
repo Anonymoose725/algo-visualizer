@@ -4,6 +4,7 @@
 module API where
 
 import Algorithms.BST (bstInsertSteps, bstSearchSteps, treeToGraph)
+import Algorithms.Graphs (dijkstraResponse)
 import Algorithms.Sorting (bubbleSort, insertionSort, mergeSort)
 import Algorithms.Trees
 import Data.Aeson (ToJSON)
@@ -21,6 +22,7 @@ type AlgAPI =
     :<|> "tree" :> "bst" :> QueryParam "input" String :> Get '[JSON] GraphResponse
     :<|> "tree" :> "bst" :> "search" :> QueryParam "input" String :> QueryParam "target" String :> Get '[JSON] GraphResponse
     :<|> "tree" :> "bst" :> "insert" :> QueryParam "input" String :> Get '[JSON] GraphResponse
+    :<|> "graph" :> "dijkstra" :> QueryParam "edges" String :> QueryParam "source" String :> Get '[JSON] GraphResponse
 
 server :: Server AlgAPI
 server =
@@ -30,6 +32,7 @@ server =
     :<|> bstHandler
     :<|> bstSearchHandler
     :<|> bstInsertHandler
+    :<|> dijkstraHandler
 
 {- A note on handlers:
     - functional algorithms are pure, we want to keep it that way. same input => same output
@@ -100,6 +103,11 @@ bstInsertHandler (Just inputStr) =
           let (insertSteps, tree, idM) = bstInsertSteps unique
               (treeNodes, treeEdges) = treeToGraph tree idM
            in return $ GraphResponse {nodes = treeNodes, edges = treeEdges, steps = insertSteps}
+
+dijkstraHandler :: Maybe String -> Maybe String -> Handler GraphResponse
+dijkstraHandler _ Nothing = throwError err400
+dijkstraHandler Nothing _ = throwError err400
+dijkstraHandler (Just edgeStr) (Just src) = return $ dijkstraResponse edgeStr src
 
 parseInts :: String -> [Int]
 parseInts s = map (read . trim) (splitOn ',' s)

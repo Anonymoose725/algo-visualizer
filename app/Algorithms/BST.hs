@@ -12,7 +12,7 @@ import Types (BTree (..), GEdge (..), GNode (..), GraphResponse (..), GraphStep 
 
 treeToGraph :: BTree Int -> Map.Map Int Int -> ([GNode], [GEdge])
 treeToGraph t idMap =
-  let t_nodes = map (\(val, i) -> GNode {nodeID = i, nodeValue = val}) (Map.toAscList idMap) -- could be O(n)
+  let t_nodes = map (\(val, i) -> GNode {nodeID = i, nodeValue = val, nodeLabel = Nothing}) (Map.toAscList idMap) -- could be O(n)
       t_edges = buildEdges t idMap
    in (t_nodes, t_edges)
   where
@@ -44,7 +44,8 @@ bstSearchSteps (Node x l r) k idMap =
       let step =
             GraphStep
               { highlightedNodes = [show xid], -- convert int to string
-                highlightedEdges = []
+                highlightedEdges = [],
+                distances = []
               }
        in if k == x
             then [step]
@@ -66,7 +67,7 @@ bstInsertSteps vals = go vals Empty Map.empty 0
       let stepsInPath = findPath x t idMap
           t' = insertBST x t
           idMap' = Map.insert x nextID idMap
-          insertStep = GraphStep {highlightedNodes = [show nextID], highlightedEdges = []}
+          insertStep = GraphStep {highlightedNodes = [show nextID], highlightedEdges = [], distances = []}
           (restSteps, finalTree, idMapComplete) = go xs t' idMap' (nextID + 1) -- incremement id by insertion order
        in (stepsInPath ++ [insertStep] ++ restSteps, finalTree, idMapComplete)
 
@@ -76,7 +77,7 @@ findPath v (Node x l r) idMap =
   case Map.lookup x idMap of
     Nothing -> []
     Just xID ->
-      let step = GraphStep {highlightedNodes = [show xID], highlightedEdges = []}
+      let step = GraphStep {highlightedNodes = [show xID], highlightedEdges = [], distances = []}
        in if v <= x
             then step : findPath v l idMap
             else step : findPath v r idMap

@@ -1,13 +1,13 @@
 module Algorithms.Graphs where
 
-import Data.List (foldl')
+import Data.List (foldl', nub)
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import Data.PQueue.Prio.Min (MinPQueue)
 import qualified Data.PQueue.Prio.Min as PQ
 import Data.Set (Set)
 import qualified Data.Set as Set
-import Types (GraphStep (..))
+import Types (GEdge (..), GNode (..), GraphResponse (..), GraphStep (..))
 
 -- type synonyms
 type ID = String
@@ -43,35 +43,74 @@ parseEdges s =
       tuples = [t | Just t <- map parseEdge parts] -- filter Nothing out. see Data.List.catMaybes
    in foldl' (\m (from, to, w) -> Map.insertWith (++) from [(to, w)] m) Map.empty tuples
 
+-- get all unique node labels from the adjacency map
+allLabels :: AdjMap -> [ID]
+allLabels adjMap = nub $ Map.keys adjMap ++ concatMap (map fst) (Map.elems adjMap)
+
+-- assign each label a numeric ID
+labelToID :: [ID] -> Map ID Int
+labelToID labels = Map.fromList (zip labels [0 ..])
+
+-- build GNode list
+buildGNodes :: [ID] -> Map ID Int -> [GNode]
+buildGNodes labels idMap =
+  map
+    ( \label ->
+        GNode
+          { nodeID = idMap Map.! label,
+            nodeValue = 0,
+            nodeLabel = Just label
+          }
+    )
+    labels
+
+-- build GEdge list
+buildGEdges :: AdjMap -> Map ID Int -> [GEdge]
+buildGEdges adjMap idMap =
+  concatMap
+    ( \(from, neighbours) ->
+        map
+          ( \(to, w) ->
+              GEdge
+                { fromNode = idMap Map.! from,
+                  toNode = idMap Map.! to,
+                  weight = Just w
+                }
+          )
+          neighbours
+    )
+    (Map.toList adjMap)
+
 --            AdjMap    Source
 --        A,B,2;B,C,4;   A
 runDijkstra :: String -> ID -> [GraphStep]
 runDijkstra str src =
   let graph = parseEdges str
-      nodes = Map.keys graph -- returns list containing just keys (ids)
-      distMap = Map.fromList [(n, if n == src then Just 0 else Nothing) | n <- nodes] -- set dst[src] = 0
+      listOfnodes = allLabels graph -- returns list containing just keys (ids)
+      distMap = Map.fromList [(n, if n == src then Just 0 else Nothing) | n <- listOfnodes] -- set dst[src] = 0
       pq = PQ.singleton 0 src
       visited = Set.empty
    in dijkstra graph distMap visited pq
 
 dijkstra :: AdjMap -> DistMap -> Visited -> PQ -> [GraphStep]
-dijkstra graph distances visited q
+dijkstra graph dists visited q
   | PQ.null q = []
   | otherwise =
       case PQ.minViewWithKey q of
         Nothing -> [] -- queue is empty
         Just ((dist, u), q')
-          | Set.member u visited -> dijkstra graph distances visited q' -- skip since u visited
+          | Set.member u visited -> dijkstra graph dists visited q' -- skip since u visited
           | otherwise ->
               let -- relax neighbours
                   visited' = Set.insert u visited
                   neighbours = Map.findWithDefault [] u graph -- instead of lookup
-                  (distances', q'') = foldl' (relax dist) (distances, q') neighbours -- currying relax
+                  (dists', q'') = foldl' (relax dist) (dists, q') neighbours -- currying relax
                in let -- build steps
                       selectionStep =
                         GraphStep
                           { highlightedNodes = [u],
-                            highlightedEdges = []
+                            highlightedEdges = [],
+                            distances = Map.toList dists'
                           }
                       relaxSteps =
                         map
@@ -79,11 +118,12 @@ dijkstra graph distances visited q
                               -- ignore distance, this was handled logically by relaxing. just need ID for step
                               GraphStep
                                 { highlightedNodes = [u, v],
-                                  highlightedEdges = [(u, v)]
+                                  highlightedEdges = [(u, v)],
+                                  distances = Map.toList dists'
                                 }
                           )
                           neighbours
-                      restSteps = dijkstra graph distances' visited' q''
+                      restSteps = dijkstra graph dists' visited' q''
                    in selectionStep : relaxSteps ++ restSteps
 
 relax :: Dist -> (DistMap, PQ) -> (ID, Dist) -> (DistMap, PQ)
@@ -93,3 +133,14 @@ relax uDist (dists, pq) (v, w) =
    in case oldDist of
         Just d | d <= newDist -> (dists, pq) -- old path better
         _ -> (Map.insert v (Just newDist) dists, PQ.insert newDist v pq) -- improvement
+
+-- full response builder
+dijkstraResponse :: String -> ID -> GraphResponse
+dijkstraResponse edgeStr source =
+  let adjMap = parseEdges edgeStr
+      labels = allLabels adjMap
+      idMap = labelToID labels
+      ns = buildGNodes labels idMap
+      es = buildGEdges adjMap idMap
+      fullsteps = runDijkstra edgeStr source
+   in GraphResponse {nodes = ns, edges = es, steps = fullsteps}

@@ -140,4 +140,5 @@ The compiler makes sure that every handler matches this definition. A handler re
     - redblack trees + rotations
     - DFS
     - BFS
+    - Kruskal's MST
 2. Data.Vector upgrade, only if performance requires it

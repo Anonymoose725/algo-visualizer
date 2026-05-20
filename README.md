@@ -134,31 +134,10 @@ The compiler makes sure that every handler matches this definition. A handler re
 
 **Improvements**
 
-1. Add Action datatype to Step so algorithms do not need to infer the type of action at each comparison
-    ```haskell
-    data Action
-        = Compare (Int, Int)
-        | Swap Int Int
-        | Write Int Int
-    ```
-    So Step becomes
-    ```haskell
-    data Step = Step
-     { stepNumber :: Int,
-       currentState :: [Int],
-       action :: Action,
-       partitionInfo :: Maybe PartitionInfo
-     }
-    ```
-2. More algorithms!
+1. More algorithms!
     - quicksort (with pivot highlighting)
     - heap sort (tree + array dual view)
-    - binary search trees (done!)
     - redblack trees + rotations
-    - dijkstra's shortest path + graphs
-
-3. Graph building from adjcency list, received from frontend (user builds! from drag-and-drop)
-
-4. Data.Vector upgrade, only if performance requires it
-
-5. Export/import prebuilt data structures
+    - DFS
+    - BFS
+2. Data.Vector upgrade, only if performance requires it

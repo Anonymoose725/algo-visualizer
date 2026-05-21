@@ -65,7 +65,7 @@ data GEdge = GEdge
 data GraphStep = GraphStep
   { highlightedNodes :: [String],
     highlightedEdges :: [(String, String)],
-    distances :: [(String, Maybe Int)]
+    distances :: Maybe [(String, Maybe Int)]
   }
   deriving stock (Generic)
   deriving anyclass (ToJSON)

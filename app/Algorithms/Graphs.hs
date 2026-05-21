@@ -110,7 +110,7 @@ dijkstra graph dists visited q
                         GraphStep
                           { highlightedNodes = [u],
                             highlightedEdges = [],
-                            distances = Map.toList dists'
+                            distances = Just (Map.toList dists')
                           }
                       relaxSteps =
                         map
@@ -119,7 +119,7 @@ dijkstra graph dists visited q
                               GraphStep
                                 { highlightedNodes = [u, v],
                                   highlightedEdges = [(u, v)],
-                                  distances = Map.toList dists'
+                                  distances = Just (Map.toList dists')
                                 }
                           )
                           neighbours

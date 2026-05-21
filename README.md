@@ -134,11 +134,12 @@ The compiler makes sure that every handler matches this definition. A handler re
 
 **Improvements**
 
-1. More algorithms!
+1. Fix Insertion Sort
+2. More algorithms!
     - quicksort (with pivot highlighting)
     - heap sort (tree + array dual view)
     - redblack trees + rotations
     - DFS
     - BFS
     - Kruskal's MST
-2. Data.Vector upgrade, only if performance requires it
+3. Data.Vector upgrade, only if performance requires it

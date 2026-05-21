@@ -144,3 +144,47 @@ dijkstraResponse edgeStr source =
       es = buildGEdges adjMap idMap
       fullsteps = runDijkstra edgeStr source
    in GraphResponse {nodes = ns, edges = es, steps = fullsteps}
+
+-- DFS
+dfs :: AdjMap -> Visited -> ID -> (Visited, [GraphStep])
+dfs graph visited u
+  | Set.member u visited = (visited, []) -- already visited, exit
+  | otherwise =
+      let visitStep = GraphStep {highlightedNodes = [u], highlightedEdges = [], distances = Nothing}
+          visited' = Set.insert u visited
+          neighbours = Map.findWithDefault [] u graph :: [(ID, Dist)]
+          (allVisited, allSteps) =
+            foldl'
+              ( \(curVisited, curSteps) (v, _) ->
+                  -- accs
+                  let edgeStep =
+                        GraphStep
+                          { highlightedNodes = [u, v],
+                            highlightedEdges = [(u, v)],
+                            distances = Nothing
+                          }
+                      (neighboursVisited, dfsSteps) = dfs graph curVisited v
+                      fullSteps = curSteps ++ [edgeStep] ++ dfsSteps
+                   in (neighboursVisited, fullSteps)
+              )
+              (visited', [visitStep])
+              neighbours -- initial call for foldl'
+       in (allVisited, allSteps)
+
+--   "A,B,2;B,C,4"  src
+runDFS :: String -> ID -> [GraphStep]
+runDFS str src =
+  let g = parseEdges str :: AdjMap
+      visited = Set.empty
+      (_, dfsSteps) = dfs g visited src
+   in dfsSteps
+
+dfsResponse :: String -> ID -> GraphResponse
+dfsResponse edgeStr source =
+  let adjMap = parseEdges edgeStr
+      labels = allLabels adjMap
+      idMap = labelToID labels
+      ns = buildGNodes labels idMap
+      es = buildGEdges adjMap idMap
+      fullsteps = runDFS edgeStr source
+   in GraphResponse {nodes = ns, edges = es, steps = fullsteps}

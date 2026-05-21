@@ -4,16 +4,14 @@
 module API where
 
 import Algorithms.BST (bstInsertSteps, bstSearchSteps, treeToGraph)
-import Algorithms.Graphs (dijkstraResponse)
+import Algorithms.Graphs (dfsResponse, dijkstraResponse)
 import Algorithms.Sorting (bubbleSort, insertionSort, mergeSort)
 import Algorithms.Trees
-import Data.Aeson (ToJSON)
 import Data.Char (isSpace)
 import Data.List (nub)
 import qualified Data.Map.Strict as Map
-import Network.Wai (Application)
 import Servant
-import Types (GEdge (..), GNode (..), GraphResponse (..), GraphStep (..), Step (..))
+import Types (GraphResponse (..), Step (..))
 
 type AlgAPI =
   "sort" :> "bubble" :> QueryParam "input" String :> Get '[JSON] [Step] -- :<|> is or
@@ -23,6 +21,7 @@ type AlgAPI =
     :<|> "tree" :> "bst" :> "search" :> QueryParam "input" String :> QueryParam "target" String :> Get '[JSON] GraphResponse
     :<|> "tree" :> "bst" :> "insert" :> QueryParam "input" String :> Get '[JSON] GraphResponse
     :<|> "graph" :> "dijkstra" :> QueryParam "edges" String :> QueryParam "source" String :> Get '[JSON] GraphResponse
+    :<|> "graph" :> "dfs" :> QueryParam "edges" String :> QueryParam "source" String :> Get '[JSON] GraphResponse
 
 server :: Server AlgAPI
 server =
@@ -33,6 +32,7 @@ server =
     :<|> bstSearchHandler
     :<|> bstInsertHandler
     :<|> dijkstraHandler
+    :<|> dfsHandler
 
 {- A note on handlers:
     - functional algorithms are pure, we want to keep it that way. same input => same output
@@ -108,6 +108,11 @@ dijkstraHandler :: Maybe String -> Maybe String -> Handler GraphResponse
 dijkstraHandler _ Nothing = throwError err400
 dijkstraHandler Nothing _ = throwError err400
 dijkstraHandler (Just edgeStr) (Just src) = return $ dijkstraResponse edgeStr src
+
+dfsHandler :: Maybe String -> Maybe String -> Handler GraphResponse
+dfsHandler _ Nothing = throwError err400
+dfsHandler Nothing _ = throwError err400
+dfsHandler (Just edgeStr) (Just src) = return $ dfsResponse edgeStr src
 
 parseInts :: String -> [Int]
 parseInts s = map (read . trim) (splitOn ',' s)

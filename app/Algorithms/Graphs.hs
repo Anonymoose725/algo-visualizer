@@ -154,21 +154,24 @@ dfs graph visited u
           visited' = Set.insert u visited
           neighbours = Map.findWithDefault [] u graph :: [(ID, Dist)]
           (allVisited, allSteps) =
-            foldl'
+            foldl' -- accs
               ( \(curVisited, curSteps) (v, _) ->
-                  -- accs
-                  let edgeStep =
-                        GraphStep
-                          { highlightedNodes = [u, v],
-                            highlightedEdges = [(u, v)],
-                            distances = Nothing
-                          }
-                      (neighboursVisited, dfsSteps) = dfs graph curVisited v
-                      fullSteps = curSteps ++ [edgeStep] ++ dfsSteps
-                   in (neighboursVisited, fullSteps)
+                  -- only visited a neighbour if it hasnt been visited yet
+                  if Set.member v curVisited
+                    then (curVisited, curSteps)
+                    else
+                      let edgeStep =
+                            GraphStep
+                              { highlightedNodes = [u, v],
+                                highlightedEdges = [(u, v)],
+                                distances = Nothing
+                              }
+                          (neighboursVisited, dfsSteps) = dfs graph curVisited v
+                          fullSteps = curSteps ++ [edgeStep] ++ dfsSteps
+                       in (neighboursVisited, fullSteps)
               )
               (visited', [visitStep])
-              neighbours -- initial call for foldl'
+              neighbours -- initial call for foldl' (neighbour v, weight ignored)
        in (allVisited, allSteps)
 
 --   "A,B,2;B,C,4"  src
